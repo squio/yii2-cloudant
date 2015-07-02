@@ -1,0 +1,29 @@
+{
+    "name": "squio/yii2-cloudant",
+    "description": "Cloudant integration and ActiveRecord for the Yii framework",
+    "keywords": ["yii2", "cloudant", "active-record"],
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/squio/yii2-cloudant/issues?state=open",
+        "source": "https://github.com/squio/yii2-cloudant"
+    },
+    "authors": [
+        {
+            "name": "Johannes la Poutre",
+            "email": "info@squio.nl"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": { "yii\\cloudant\\": "" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    }
+}

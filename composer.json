@@ -20,10 +20,5 @@
     },
     "autoload": {
         "psr-4": { "yii\\cloudant\\": "" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0.x-dev"
-        }
     }
 }

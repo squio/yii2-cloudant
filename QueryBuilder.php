@@ -154,6 +154,28 @@ class QueryBuilder extends \yii\base\Object
         return $orders;
     }
 
+    /**
+     * Converts "\yii\db\*" quick condition keyword into actual Mongo condition keyword.
+     * @param string $key raw condition key.
+     * @return string actual key.
+     * based on yii2-mongodb/Collection.php
+     */
+    protected function normalizeConditionKeyword($key)
+    {
+        static $map = [
+            'AND' => '$and',
+            'OR' => '$or',
+            'IN' => '$in',
+            'NOT IN' => '$nin',
+        ];
+        $matchKey = strtoupper($key);
+        if (array_key_exists($matchKey, $map)) {
+            return $map[$matchKey];
+        } else {
+            return $key;
+        }
+    }
+
     // /**
     //  * Parses the condition specification and generates the corresponding SQL expression.
     //  *
@@ -199,6 +221,7 @@ class QueryBuilder extends \yii\base\Object
     //         return $this->buildHashCondition($condition);
     //     }
     // }
+
     /**
      * Parses the condition specification and generates the corresponding Mongo condition.
      * @param array $condition the condition specification. Please refer to [[Query::where()]]
@@ -220,8 +243,9 @@ class QueryBuilder extends \yii\base\Object
         ];
 
         if (!is_array($condition)) {
-            // throw new InvalidParamException('Condition should be an array.');
-            return [];
+            throw new NotSupportedException('String conditions in where() are not supported by cloudant.');
+            // simple scalar value: return without further processing?
+            // return $condition;
         } elseif (empty($condition)) {
             return [];
         }
@@ -230,7 +254,6 @@ class QueryBuilder extends \yii\base\Object
             if (isset($builders[$operator])) {
                 $method = $builders[$operator];
                 array_shift($condition);
-
                 return $this->$method($operator, $condition);
             } else {
                 throw new InvalidParamException('Found unknown operator in query: ' . $operator);
@@ -279,7 +302,7 @@ class QueryBuilder extends \yii\base\Object
         $result = [];
         foreach ($condition as $name => $value) {
             if (strncmp('$', $name, 1) === 0) {
-                // Native Mongo condition:
+                // Native Cloudant Query condition:
                 $result[$name] = $value;
             } else {
                 if (is_array($value)) {
@@ -300,110 +323,6 @@ class QueryBuilder extends \yii\base\Object
         return $result;
     }
 
-    // private function buildNotCondition($operator, $operands)
-    // {
-    //     if (count($operands) != 1) {
-    //         throw new InvalidParamException("Operator '$operator' requires exactly one operand.");
-    //     }
-    //
-    //     $operand = reset($operands);
-    //     if (is_array($operand)) {
-    //         $operand = $this->buildCondition($operand);
-    //     }
-    //
-    //     return [$operator => $operand];
-    // }
-    //
-    // private function buildAndCondition($operator, $operands)
-    // {
-    //     $parts = [];
-    //     foreach ($operands as $operand) {
-    //         if (is_array($operand)) {
-    //             $operand = $this->buildCondition($operand);
-    //         }
-    //         if (!empty($operand)) {
-    //             $parts[] = $operand;
-    //         }
-    //     }
-    //     if (!empty($parts)) {
-    //         return [$operator => $parts];
-    //     } else {
-    //         return [];
-    //     }
-    // }
-    //
-    // private function buildBetweenCondition($operator, $operands)
-    // {
-    //     if (!isset($operands[0], $operands[1], $operands[2])) {
-    //         throw new InvalidParamException("Operator '$operator' requires three operands.");
-    //     }
-    //
-    //     list($column, $value1, $value2) = $operands;
-    //     if ($column == '_id') {
-    //         throw new NotSupportedException('Between condition is not supported for the _id field.');
-    //     }
-    //     $selector = ['range' => [$column => ['gte' => $value1, 'lte' => $value2]]];
-    //     if ($operator == 'not between') {
-    //         $selector = ['not' => $selector];
-    //     }
-    //
-    //     return $selector;
-    // }
-    //
-    // private function buildInCondition($operator, $operands)
-    // {
-    //     if (!isset($operands[0], $operands[1])) {
-    //         throw new InvalidParamException("Operator '$operator' requires two operands.");
-    //     }
-    //
-    //     list($column, $values) = $operands;
-    //
-    //     $values = (array) $values;
-    //
-    //     if (empty($values) || $column === []) {
-    //         return $operator === 'in' ? ['terms' => ['_uid' => []]] : []; // this condition is equal to WHERE false
-    //     }
-    //
-    //     if (count($column) > 1) {
-    //         return $this->buildCompositeInCondition($operator, $column, $values);
-    //     } elseif (is_array($column)) {
-    //         $column = reset($column);
-    //     }
-    //     $canBeNull = false;
-    //     foreach ($values as $i => $value) {
-    //         if (is_array($value)) {
-    //             $values[$i] = $value = isset($value[$column]) ? $value[$column] : null;
-    //         }
-    //         if ($value === null) {
-    //             $canBeNull = true;
-    //             unset($values[$i]);
-    //         }
-    //     }
-    //     if ($column == '_id') {
-    //         if (empty($values) && $canBeNull) { // there is no null pk
-    //             $selector = ['terms' => ['_uid' => []]]; // this condition is equal to WHERE false
-    //         } else {
-    //             $selector = ['ids' => ['values' => array_values($values)]];
-    //             if ($canBeNull) {
-    //                 $selector = ['or' => [$selector, ['missing' => ['field' => $column, 'existence' => true, 'null_value' => true]]]];
-    //             }
-    //         }
-    //     } else {
-    //         if (empty($values) && $canBeNull) {
-    //             $selector = ['missing' => ['field' => $column, 'existence' => true, 'null_value' => true]];
-    //         } else {
-    //             $selector = ['in' => [$column => array_values($values)]];
-    //             if ($canBeNull) {
-    //                 $selector = ['or' => [$selector, ['missing' => ['field' => $column, 'existence' => true, 'null_value' => true]]]];
-    //             }
-    //         }
-    //     }
-    //     if ($operator == 'not in') {
-    //         $selector = ['not' => $selector];
-    //     }
-    //
-    //     return $selector;
-    // }
     /**
      * Connects two or more conditions with the `AND` operator.
      * @param string $operator the operator to use for connecting the given operands
@@ -509,8 +428,7 @@ class QueryBuilder extends \yii\base\Object
     }
 
     /**
-     * FIXME TODO rewrite for Cloudant
-     * Creates a Mongo regular expression condition.
+     * Creates a regular expression condition.
      * @param string $operator the operator to use
      * @param array $operands the first operand is the column name.
      * The second operand is a single value that column value should be compared with.
@@ -523,16 +441,14 @@ class QueryBuilder extends \yii\base\Object
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
         list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex($value);
+        if (preg_match("/${value}/", null) === false) {
+            throw new InvalidParamException("Invalid regex: '$value'");
         }
-
-        return [$column => $value];
+        return [$column => [ '$regex' => $value ]];
     }
 
     /**
-     * FIXME TODO rewrite for Cloudant
-     * Creates a Mongo condition, which emulates the `LIKE` operator.
+     * Creates a Regexp condition, which emulates the `LIKE` operator.
      * @param string $operator the operator to use
      * @param array $operands the first operand is the column name.
      * The second operand is a single value that column value should be compared with.
@@ -541,15 +457,7 @@ class QueryBuilder extends \yii\base\Object
      */
     public function buildLikeCondition($operator, $operands)
     {
-        if (!isset($operands[0], $operands[1])) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
-        }
-        list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex('/' . preg_quote($value) . '/i');
-        }
-
-        return [$column => $value];
+        return $this->buildRegexCondition($operator, $operands);
     }
 
     protected function buildCompositeInCondition($operator, $columns, $values)

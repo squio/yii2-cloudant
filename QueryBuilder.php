@@ -99,6 +99,17 @@ class QueryBuilder extends \yii\base\Object
         $sort = $this->buildOrderBy($query->orderBy);
         if (!empty($sort)) {
             $parts['sort'] = $sort;
+            // Add sort fields to selector so Cloudant can use them for sorting.
+            // NOTE this needs a sorting index set up for these fields at Cloudant!
+            // @see https://docs.cloudant.com/cloudant_query.html#creating-an-index
+            foreach ($sort as $key => $value) {
+                foreach ($value as $k => $v) {
+                    // skip sort keys which are already used in selector
+                    if (empty($parts['selector'][ $k ])) {
+                        $parts['selector'][ $k ] = [ '$gt' => 0 ];
+                    }
+                }
+            }
         }
 
         $options = [];

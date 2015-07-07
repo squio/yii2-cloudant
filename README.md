@@ -28,7 +28,7 @@ php composer.phar require --prefer-dist squio/yii2-cloudant
 or add
 
 ```json
-"squio/yii2-cloudant": "~2.0.0"
+"squio/yii2-cloudant": "dev-master"
 ```
 
 to the require section of your composer.json.
@@ -61,10 +61,12 @@ return [
 Using the Query
 ---------------
 
-TBD
+Cloudant Query is heavily used for search operations.
+This needs the right indexes defined for each field which is part of a search or sorting query.
+Creating those indexes is not (yet) part of this extension and needs to be done manually through
+Cloudant's web administration dashboard or any other tool.
 
-> **NOTE:** cloudant limits the number of records returned by any query to 10 records by default.
-> If you expect to get more records you should specify limit explicitly in relation definition.
+A helpful blog post can be found here: [introducing cloudant query](https://cloudant.com/blog/introducing-cloudant-query/)
 
 
 Using the ActiveRecord

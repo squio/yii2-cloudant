@@ -54,6 +54,9 @@ use yii\db\QueryTrait;
 class Query extends Component implements QueryInterface
 {
     use QueryTrait;
+    // use QueryTrait {
+    //     addOrderBy as traitAddOrderBy;
+    // }
 
     /**
      * @var array the fields being retrieved from the documents. For example, `['id', 'name']`.

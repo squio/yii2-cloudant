@@ -47,18 +47,27 @@ class QueryBuilder extends \yii\base\Object
         $parts = [];
 
         if ($query->fields === []) {
-            $parts['fields'] = [];
+            $parts['fields'] = ["_id", "_rev"];
         } elseif ($query->fields !== null) {
             $fields = [];
             foreach($query->fields as $key => $field) {
                 if (is_int($key)) {
-                    // $fields[] = $field;
+                    $fields[] = $field;
                 } else {
                     $fields[$key] = $field;
                 }
             }
             if (!empty($fields)) {
+                // always include id and rev
+                if (!in_array("_rev", $fields)) {
+                    array_unshift($fields, "_rev");
+                }
+                if (!in_array("_id", $fields)) {
+                    array_unshift($fields, "_id");
+                }
                 $parts['fields'] = $fields;
+            } else {
+                $parts['fields'] = ["_id", "_rev"];
             }
         }
         if ($query->source !== null) {
@@ -116,12 +125,14 @@ class QueryBuilder extends \yii\base\Object
         if ($query->timeout !== null) {
             $options['timeout'] = $query->timeout;
         }
+// var_dump($query);
+// var_dump($parts); exit; //FIXME
 
         return [
             'queryParts' => $parts,
             'index' => $query->index,
             'type' => $query->type,
-            'database' => $query->database,
+            'databaseName' => $query->databaseName,
             'options' => $options,
         ];
     }
@@ -176,52 +187,6 @@ class QueryBuilder extends \yii\base\Object
         }
     }
 
-    // /**
-    //  * Parses the condition specification and generates the corresponding SQL expression.
-    //  *
-    //  * @param string|array $condition the condition specification. Please refer to [[Query::where()]] on how to specify a condition.
-    //  * @throws \yii\base\InvalidParamException if unknown operator is used in query
-    //  * @throws \yii\base\NotSupportedException if string conditions are used in where
-    //  * @return string the generated SQL expression
-    //  */
-    // public function buildCondition($condition)
-    // {
-    //     static $builders = [
-    //         'not' => 'buildNotCondition',
-    //         'and' => 'buildAndCondition',
-    //         'or' => 'buildAndCondition',
-    //         'between' => 'buildBetweenCondition',
-    //         'not between' => 'buildBetweenCondition',
-    //         'in' => 'buildInCondition',
-    //         'not in' => 'buildInCondition',
-    //         'like' => 'buildLikeCondition',
-    //         'not like' => 'buildLikeCondition',
-    //         'or like' => 'buildLikeCondition',
-    //         'or not like' => 'buildLikeCondition',
-    //     ];
-    //
-    //     if (empty($condition)) {
-    //         return [];
-    //     }
-    //     if (!is_array($condition)) {
-    //         throw new NotSupportedException('String conditions in where() are not supported by cloudant.');
-    //     }
-    //     if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
-    //         $operator = strtolower($condition[0]);
-    //         if (isset($builders[$operator])) {
-    //             $method = $builders[$operator];
-    //             array_shift($condition);
-    //
-    //             return $this->$method($operator, $condition);
-    //         } else {
-    //             throw new InvalidParamException('Found unknown operator in query: ' . $operator);
-    //         }
-    //     } else { // hash format: 'column1' => 'value1', 'column2' => 'value2', ...
-    //
-    //         return $this->buildHashCondition($condition);
-    //     }
-    // }
-
     /**
      * Parses the condition specification and generates the corresponding Mongo condition.
      * @param array $condition the condition specification. Please refer to [[Query::where()]]
@@ -265,31 +230,6 @@ class QueryBuilder extends \yii\base\Object
     }
 
 
-    // private function buildHashCondition($condition)
-    // {
-    //     $parts = [];
-    //     foreach ($condition as $attribute => $value) {
-    //         if ($attribute == '_id') {
-    //             if ($value === null) { // there is no null pk
-    //                 $parts[] = ['terms' => ['_uid' => []]]; // this condition is equal to WHERE false
-    //             } else {
-    //                 $parts[] = ['ids' => ['values' => is_array($value) ? $value : [$value]]];
-    //             }
-    //         } else {
-    //             if (is_array($value)) { // IN condition
-    //                 $parts[] = ['in' => [$attribute => $value]];
-    //             } else {
-    //                 if ($value === null) {
-    //                     $parts[] = ['missing' => ['field' => $attribute, 'existence' => true, 'null_value' => true]];
-    //                 } else {
-    //                     $parts[] = ['term' => [$attribute => $value]];
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     return count($parts) === 1 ? $parts[0] : ['and' => $parts];
-    // }
 
     /**
      * Creates a condition based on column-value pairs.
@@ -465,8 +405,4 @@ class QueryBuilder extends \yii\base\Object
         throw new NotSupportedException('composite in is not supported by cloudant.');
     }
 
-    // private function buildLikeCondition($operator, $operands)
-    // {
-    //     throw new NotSupportedException('like conditions are not supported by cloudant.');
-    // }
 }

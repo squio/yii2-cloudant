@@ -39,10 +39,10 @@ class Command extends Component
      */
     public $type;
     /**
-	 * @var $databaseName - the name of the database AKA table, collection etc.
+	 * @var $database - the name of the database AKA table, collection etc.
 	 * example: myaccount.cloudant.com/databasename
 	 */
-	public $databaseName;
+	public $database;
     /**
      * @var array list of arrays or json strings that become parts of a query
      */
@@ -58,7 +58,7 @@ class Command extends Component
     public function search($options = [])
     {
         $query = $this->queryParts;
-
+        
         if (empty($query)) {
             $query = '{}';
         }
@@ -66,7 +66,7 @@ class Command extends Component
             $query = Json::encode($query);
         }
 
-		$url = $this->databaseName . "/_find";
+		$url = $this->database . "/_find";
 
         return $this->db->post($url, array_merge($this->options, $options), $query);
     }
@@ -122,14 +122,14 @@ class Command extends Component
 
     /**
      * Inserts a document into an index
-     * @param string $databaseName
+     * @param string $database
      * @param string|array $data json string or array of data to store
      * @param null $id the documents id. If not specified Id will be automatically chosen
      * @param array $options
      * @return mixed
      * @see https://docs.cloudant.com/document.html#documentCreate
      */
-    public function insert($databaseName, $data, $id = null, $options = [])
+    public function insert($database, $data, $id = null, $options = [])
     {
         if (empty($data)) {
             $body = '{}';
@@ -138,29 +138,29 @@ class Command extends Component
         }
 
         if ($id !== null) {
-            return $this->db->put([$databaseName, $id], $options, $body);
+            return $this->db->put([$database, $id], $options, $body);
         } else {
-            return $this->db->post([$databaseName], $options, $body);
+            return $this->db->post([$database], $options, $body);
         }
     }
 
     /**
      * gets a document from the index
-     * @param $databaseName = Cloudant database name
+     * @param $database = Cloudant database name
      * @param $type (ignored)
      * @param $id
      * @param array $options
      * @return mixed
      * @see https://docs.cloudant.com/api.html#read33
      */
-    public function get($databaseName, $type, $id, $options = [])
+    public function get($database, $type, $id, $options = [])
     {
-        return $this->db->get([$databaseName, $id], $options);
+        return $this->db->get([$database, $id], $options);
     }
 
     /**
      * gets a document from the view
-     * @param $databaseName = Cloudant database name
+     * @param $database = Cloudant database name
      * @param $design_doc - the design document
      * @param $view - the name of the view
      * @param array $options
@@ -169,8 +169,8 @@ class Command extends Component
      */
     public function getView($design_doc, $view, $options = [])
     {
-        $databaseName = $this->databaseName;
-        return $this->db->get([$databaseName, "_design", $design_doc, "_view", $view], $options);
+        $database = $this->database;
+        return $this->db->get([$database, "_design", $design_doc, "_view", $view], $options);
     }
 
     /**
@@ -219,26 +219,26 @@ class Command extends Component
 
     /**
      * deletes a document from the index
-     * @param $databaseName
+     * @param $database
      * @param $id
      * @param array $options
      * @return mixed
      * @see https://docs.cloudant.com/document.html#delete
      */
-    public function delete($databaseName, $id, $options = [])
+    public function delete($database, $id, $options = [])
     {
-        return $this->db->delete([$databaseName, $id], $options);
+        return $this->db->delete([$database, $id], $options);
     }
 
     /**
      * updates a document
-     * @param $databaseName
+     * @param $database
      * @param $id
      * @param array $options
      * @return mixed
      * @see https://docs.cloudant.com/document.html#update
      */
-    public function update($databaseName, $id, $data, $options = [])
+    public function update($database, $id, $data, $options = [])
     {
         $body = empty($data) ? new \stdClass() : $data;
         if (isset($options["detect_noop"])) {
@@ -246,7 +246,7 @@ class Command extends Component
             unset($options["detect_noop"]);
         }
 
-        return $this->db->put([$databaseName, $id], $options, Json::encode($body));
+        return $this->db->put([$database, $id], $options, Json::encode($body));
     }
 
 

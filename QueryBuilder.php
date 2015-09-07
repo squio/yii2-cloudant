@@ -47,25 +47,26 @@ class QueryBuilder extends \yii\base\Object
         $parts = [];
 
         if ($query->fields === []) {
-            $parts['fields'] = ["_id", "_rev"];
+            $parts['fields'] = [];
         } elseif ($query->fields !== null) {
             $fields = [];
             foreach($query->fields as $key => $field) {
                 if (is_int($key)) {
-                    $fields[] = $field;
+                    // $fields[] = $field;
                 } else {
                     $fields[$key] = $field;
                 }
             }
             if (!empty($fields)) {
-                // always include id and rev
-                if (!in_array("_rev", $fields)) {
-                    array_unshift($fields, "_rev");
-                }
-                if (!in_array("_id", $fields)) {
-                    array_unshift($fields, "_id");
-                }
                 $parts['fields'] = $fields;
+
+                // always include id and rev
+                if (!in_array("_rev", $parts)) {
+                    array_unshift($parts, "_rev");
+                }
+                if (!in_array("_id", $parts)) {
+                    array_unshift($parts, "_id");
+                }
             } else {
                 $parts['fields'] = ["_id", "_rev"];
             }
@@ -132,7 +133,7 @@ class QueryBuilder extends \yii\base\Object
             'queryParts' => $parts,
             'index' => $query->index,
             'type' => $query->type,
-            'databaseName' => $query->databaseName,
+            'database' => $query->database,
             'options' => $options,
         ];
     }

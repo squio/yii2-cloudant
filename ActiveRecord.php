@@ -58,7 +58,7 @@ class ActiveRecord extends BaseActiveRecord
     private $_score;
     private $_rev;
 	protected $_attachments;
-	protected static $databaseName;
+	protected static $database;
 
     /** example:
      * protected static $indexes = [
@@ -162,7 +162,7 @@ class ActiveRecord extends BaseActiveRecord
             return null;
         }
         $command = static::getDb()->createCommand();
-        $result = $command->get(static::databaseName(), static::type(), $primaryKey, $options);
+        $result = $command->get(static::database(), static::type(), $primaryKey, $options);
 
 		if ($result['_id'] === $primaryKey) {
             $model = static::instantiate($result);
@@ -332,9 +332,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @return string the name of the type of this record.
      */
-    public static function databaseName()
+    public static function database()
     {
-        return static::$databaseName;
+        return static::$database;
     }
 
 
@@ -463,7 +463,7 @@ class ActiveRecord extends BaseActiveRecord
         $values = $this->getDirtyAttributes($attributes);
 
         $response = static::getDb()->createCommand()->insert(
-            static::databaseName(),
+            static::database(),
             // static::type(),
             $values,
             $this->getPrimaryKey(),
@@ -561,7 +561,7 @@ class ActiveRecord extends BaseActiveRecord
 
         try {
             $result = static::getDb()->createCommand()->update(
-                static::databaseName(),
+                static::database(),
                 $this->getOldPrimaryKey(false),
                 $values,
                 $options
@@ -758,7 +758,7 @@ class ActiveRecord extends BaseActiveRecord
 
         try {
             $result = static::getDb()->createCommand()->delete(
-                static::databaseName(),
+                static::database(),
                 $this->getOldPrimaryKey(false),
                 $options
             );

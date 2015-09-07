@@ -83,10 +83,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     const EVENT_INIT = 'init';
 
 	/**
-	 * @var $databaseName - the name of the database AKA table, collection etc.
+	 * @var $database - the name of the database AKA table, collection etc.
 	 * example: myaccount.cloudant.com/databasename
 	 */
-	public $databaseName;
+	public $database;
 
     /**
      * Constructor.
@@ -146,8 +146,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
 		// get Cloudant database name (=table, collection) from model field $database
-        if ($this->databaseName === null) {
-            $this->databaseName = $modelClass::databaseName();
+        if ($this->database === null) {
+            $this->database = $modelClass::database();
         }
 
         if ($this->type === null) {

@@ -59,6 +59,7 @@ class ActiveRecord extends BaseActiveRecord
     private $_rev;
 	protected $_attachments;
 	protected static $database;
+	protected static $type;     // default: inferred from model class
 
     /** example:
      * protected static $indexes = [
@@ -322,10 +323,17 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * @return string the name of the type of this record.
+	 * This is the canonical string notation of the ModelClass.
+	 * You can override this by explicitly setting 
+	 * protected static property $model->type.
      */
     public static function type()
     {
-        return Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
+		if (static::$type !== null) {
+			return static::$type;
+		} else {
+        	return Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
+		}
     }
 
 

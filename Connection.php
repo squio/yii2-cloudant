@@ -12,6 +12,7 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\helpers\Json;
+use \yii\web\HttpException;
 
 /**
  * cloudant Connection is used to connect to an cloudant cluster version 0.20 or higher
@@ -435,15 +436,19 @@ class Connection extends Component
 //        } elseif ($responseCode == 404) {
 //            return false; // NOT SURE if this is helpful
         } else {
-            throw new Exception("Cloudant request failed with code $responseCode.", [
-                'requestMethod' => $method,
-                'requestUrl' => $url,
-                'requestBody' => $requestBody,
-                // 'requestOptions' => print_r($options, true),
-                'responseCode' => $responseCode,
-                'responseHeaders' => $headers,
-                'responseBody' => $this->decodeErrorBody($body),
-            ]);
+			if (YII_ENV_DEV) {
+				throw new Exception("Cloudant request failed with code $responseCode.", [
+					'requestMethod' => $method,
+					'requestUrl' => $url,
+					'requestBody' => $requestBody,
+					// 'requestOptions' => print_r($options, true),
+					'responseCode' => $responseCode,
+					'responseHeaders' => $headers,
+					'responseBody' => $this->decodeErrorBody($body),
+				]);
+			} else {
+				throw new HttpException($responseCode);
+			}
         }
     }
 

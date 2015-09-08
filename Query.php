@@ -338,7 +338,7 @@ class Query extends Component implements QueryInterface
         $countIdx = $modelClass::indexes()->count;
 
         $result = $this->createCommand($db)->getView($countIdx->design, $countIdx->view);
-        if (isset($result['rows'])) {
+        if (isset($result['rows']) && count($result['rows'])) {
             return $result['rows'][0]['value'];
         } else {
             return 0;

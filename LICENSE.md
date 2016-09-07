@@ -1,4 +1,4 @@
-Yii2 Cloudant is © 2015 Squio Ventures BV
+Yii2 Cloudant is © 2015, 2016 Squio Ventures BV
 
 The Yii framework is free software. It is released under the terms of
 the following BSD License.

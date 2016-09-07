@@ -57,16 +57,16 @@ class ActiveRecord extends BaseActiveRecord
     private $_id;
     private $_score;
     private $_rev;
-	protected $_attachments;
-	protected static $database;
-	protected static $type;     // default: inferred from model class
+    protected $_attachments;
+    protected static $database;
+    protected static $type;     // default: inferred from model class
 
     /** example:
      * protected static $indexes = [
-	 *	'count' => [
-	 *		'design' => 'view-count',
-	 *		'view' => 'count-opnames'],
-	 * ];
+     *	'count' => [
+     *		'design' => 'view-count',
+     *		'view' => 'count-opnames'],
+     * ];
      */
     protected static $indexes;
 
@@ -86,7 +86,8 @@ class ActiveRecord extends BaseActiveRecord
      * @param  array|mixed $d nested document structure
      * @return stdClass   object representation
      */
-    private static function arrayToObject($d) {
+    private static function arrayToObject($d)
+    {
         if (is_array($d)) {
             /*
             * Return array converted to object
@@ -94,26 +95,26 @@ class ActiveRecord extends BaseActiveRecord
             * for recursive call
             */
             return (object) array_map(__METHOD__, $d);
-        }
-        else {
+        } else {
             // Return object
             return $d;
         }
     }
 
     /**
-	 * Describes a list of indexes defined at Cloudant
+     * Describes a list of indexes defined at Cloudant
      * @return object the list of indexes for this record
      * usage: indexes()->name->design; indexes()->name->view;
      * NOTE: this method uses a static array $indexes from the model class.
      * This array must provide at least a design document and view for the 'count' query.
-	 */
-	public static function indexes() {
+     */
+    public static function indexes()
+    {
         if (empty(static::$indexes)) {
             throw new Exception('static Array $indexes must be defined in ' . get_called_class());
         }
 
-		return self::arrayToObject( static::$indexes );
+        return self::arrayToObject(static::$indexes);
     }
 
     /**
@@ -172,7 +173,7 @@ class ActiveRecord extends BaseActiveRecord
         $command = static::getDb()->createCommand();
         $result = $command->get(static::database(), static::type(), $primaryKey, $options);
 
-		if ($result['_id'] === $primaryKey) {
+        if ($result['_id'] === $primaryKey) {
             $model = static::instantiate($result);
             static::populateRecord($model, $result);
             $model->afterFind();
@@ -330,17 +331,17 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * @return string the name of the type of this record.
-	 * This is the canonical string notation of the ModelClass.
-	 * You can override this by explicitly setting
-	 * protected static property $model->type.
+     * This is the canonical string notation of the ModelClass.
+     * You can override this by explicitly setting
+     * protected static property $model->type.
      */
     public static function type()
     {
-		if (static::$type !== null) {
-			return static::$type;
-		} else {
-        	return Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
-		}
+        if (static::$type !== null) {
+            return static::$type;
+        } else {
+            return Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
+        }
     }
 
 
@@ -381,7 +382,7 @@ class ActiveRecord extends BaseActiveRecord
 //            $attributes = array_merge($attributes, $row['fields']);
 //        }
 
-		$attributes = $row; // just a plain document returned as array from query
+        $attributes = $row; // just a plain document returned as array from query
 
         parent::populateRecord($record, $attributes);
 
@@ -581,7 +582,7 @@ class ActiveRecord extends BaseActiveRecord
                 $values,
                 $options
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // HTTP 409 is the response in case of failed optimistic locking
             // TODO implement for Cloudant
             if (isset($e->errorInfo['responseCode']) && $e->errorInfo['responseCode'] == 409) {
@@ -777,7 +778,7 @@ class ActiveRecord extends BaseActiveRecord
                 $this->getOldPrimaryKey(false),
                 $options
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // HTTP 409 is the response in case of failed matching on _rev
             // https://docs.cloudant.com/document.html#delete
             if (isset($e->errorInfo['responseCode']) && $e->errorInfo['responseCode'] == 409) {

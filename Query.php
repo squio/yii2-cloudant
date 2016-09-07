@@ -335,7 +335,6 @@ class Query extends Component implements QueryInterface
      */
     public function count($q = '*', $db = null, $countIndexName = 'count')
     {
-
         $modelClass = $this->modelClass;
         $countIdx = $modelClass::indexes()->$countIndexName;
 

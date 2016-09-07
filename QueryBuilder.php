@@ -50,7 +50,7 @@ class QueryBuilder extends \yii\base\Object
             $parts['fields'] = [];
         } elseif ($query->fields !== null) {
             $fields = [];
-            foreach($query->fields as $key => $field) {
+            foreach ($query->fields as $key => $field) {
                 if (is_int($key)) {
                     // $fields[] = $field;
                 } else {
@@ -405,5 +405,4 @@ class QueryBuilder extends \yii\base\Object
     {
         throw new NotSupportedException('composite in is not supported by cloudant.');
     }
-
 }

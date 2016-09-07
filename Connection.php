@@ -317,7 +317,7 @@ class Connection extends Component
         $headers = [];
         $body = '';
 
-		$node = $this->nodes[$this->activeNode];
+        $node = $this->nodes[$this->activeNode];
 
         $options = [
             CURLOPT_USERAGENT      => 'Yii Framework ' . Yii::getVersion() . ' ' . __CLASS__,
@@ -355,10 +355,10 @@ class Connection extends Component
             $options[CURLOPT_NOBODY] = true;
             unset($options[CURLOPT_WRITEFUNCTION]);
         }
-		// use basic auth, format should be 'user:passwd'
-		if (isset($node['auth'])) {
-			$options[CURLOPT_USERPWD] = $node['auth'];
-		}
+        // use basic auth, format should be 'user:passwd'
+        if (isset($node['auth'])) {
+            $options[CURLOPT_USERPWD] = $node['auth'];
+        }
 
         if (is_array($url)) {
             list($host, $q) = $url;
@@ -369,17 +369,17 @@ class Connection extends Component
                 }
             }
             $profile = $method . ' ' . $q . '#' . $requestBody;
-			$scheme = 'http://';
-			if (isset($node['ssl']) && $node['ssl']) {
-				$scheme = 'https://';
-			}
+            $scheme = 'http://';
+            if (isset($node['ssl']) && $node['ssl']) {
+                $scheme = 'https://';
+            }
             $url = $scheme . $host . '/' . $q; // TODO add option for SSL
-			// add option for AUTH
+            // add option for AUTH
         } else {
             $profile = false;
         }
 
-		Yii::trace("Sending request to cloudant node: $method $url\n$requestBody", __METHOD__);
+        Yii::trace("Sending request to cloudant node: $method $url\n$requestBody", __METHOD__);
         if ($profile !== false) {
             Yii::beginProfile($profile, __METHOD__);
         }
@@ -419,7 +419,7 @@ class Connection extends Component
                         'responseBody' => $this->decodeErrorBody($body),
                     ]);
                 }
-				// cloudant returns: text/plain;charset=utf-8
+                // cloudant returns: text/plain;charset=utf-8
 //                if (isset($headers['content-type']) && !strncmp($headers['content-type'], 'application/json', 16)) {
                     return $raw ? $body : Json::decode($body);
 //                }
@@ -436,19 +436,19 @@ class Connection extends Component
 //        } elseif ($responseCode == 404) {
 //            return false; // NOT SURE if this is helpful
         } else {
-			if (YII_ENV_DEV) {
-				throw new Exception("Cloudant request failed with code $responseCode.", [
-					'requestMethod' => $method,
-					'requestUrl' => $url,
-					'requestBody' => $requestBody,
-					// 'requestOptions' => print_r($options, true),
-					'responseCode' => $responseCode,
-					'responseHeaders' => $headers,
-					'responseBody' => $this->decodeErrorBody($body),
-				]);
-			} else {
-				throw new HttpException($responseCode);
-			}
+            if (YII_ENV_DEV) {
+                throw new Exception("Cloudant request failed with code $responseCode.", [
+                    'requestMethod' => $method,
+                    'requestUrl' => $url,
+                    'requestBody' => $requestBody,
+                    // 'requestOptions' => print_r($options, true),
+                    'responseCode' => $responseCode,
+                    'responseHeaders' => $headers,
+                    'responseBody' => $this->decodeErrorBody($body),
+                ]);
+            } else {
+                throw new HttpException($responseCode);
+            }
         }
     }
 
@@ -465,7 +465,7 @@ class Connection extends Component
                 $decoded['error'] = preg_replace('/\b\w+?Exception\[/', "<span style=\"color: red;\">\\0</span>\n               ", $decoded['error']);
             }
             return $decoded;
-        } catch(InvalidParamException $e) {
+        } catch (InvalidParamException $e) {
             return $body;
         }
     }

@@ -39,10 +39,10 @@ class Command extends Component
      */
     public $type;
     /**
-	 * @var $database - the name of the database AKA table, collection etc.
-	 * example: myaccount.cloudant.com/databasename
-	 */
-	public $database;
+     * @var $database - the name of the database AKA table, collection etc.
+     * example: myaccount.cloudant.com/databasename
+     */
+    public $database;
     /**
      * @var array list of arrays or json strings that become parts of a query
      */
@@ -58,7 +58,7 @@ class Command extends Component
     public function search($options = [])
     {
         $query = $this->queryParts;
-        
+
         if (empty($query)) {
             $query = '{}';
         }
@@ -66,7 +66,7 @@ class Command extends Component
             $query = Json::encode($query);
         }
 
-		$url = $this->database . "/_find";
+        $url = $this->database . "/_find";
 
         return $this->db->post($url, array_merge($this->options, $options), $query);
     }
@@ -424,7 +424,6 @@ class Command extends Component
         ]);
 
         return $this->db->put(['_template', $name], [], $body);
-
     }
 
     /**
@@ -435,7 +434,6 @@ class Command extends Component
     public function deleteTemplate($name)
     {
         return $this->db->delete(['_template', $name]);
-
     }
 
     /**

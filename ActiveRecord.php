@@ -82,7 +82,27 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-	 * Defines a list of indexes defined at Cloudant
+     * Helper to turn a nested array structure into a stdClass object
+     * @param  array|mixed $d nested document structure
+     * @return stdClass   object representation
+     */
+    private static function arrayToObject($d) {
+        if (is_array($d)) {
+            /*
+            * Return array converted to object
+            * Using __METHOD__ (Magic constant)
+            * for recursive call
+            */
+            return (object) array_map(__METHOD__, $d);
+        }
+        else {
+            // Return object
+            return $d;
+        }
+    }
+
+    /**
+	 * Describes a list of indexes defined at Cloudant
      * @return object the list of indexes for this record
      * usage: indexes()->name->design; indexes()->name->view;
      * NOTE: this method uses a static array $indexes from the model class.
@@ -92,21 +112,8 @@ class ActiveRecord extends BaseActiveRecord
         if (empty(static::$indexes)) {
             throw new Exception('static Array $indexes must be defined in ' . get_called_class());
         }
-		function arrayToObject($d) {
-	        if (is_array($d)) {
-	            /*
-	            * Return array converted to object
-	            * Using __FUNCTION__ (Magic constant)
-	            * for recursive call
-	            */
-	            return (object) array_map(__FUNCTION__, $d);
-	        }
-	        else {
-	            // Return object
-	            return $d;
-	        }
-	    }
-		return arrayToObject( static::$indexes );
+
+		return self::arrayToObject( static::$indexes );
     }
 
     /**
@@ -324,7 +331,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @return string the name of the type of this record.
 	 * This is the canonical string notation of the ModelClass.
-	 * You can override this by explicitly setting 
+	 * You can override this by explicitly setting
 	 * protected static property $model->type.
      */
     public static function type()

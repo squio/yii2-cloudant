@@ -326,16 +326,18 @@ class Query extends Component implements QueryInterface
      * @param string $q the COUNT expression. This parameter is ignored by this implementation.
      * @param Connection $db the database connection used to execute the query.
      * If this parameter is not given, the `cloudant` application component will be used.
+     * @param string $countIndexName the name of the counter query as specified in the static
+     * method indexes() in the model. Defaults to 'count'.
      * @return integer number of records
      * NOTE: this requires that the static method indexes() is implemented in the
      * associated modelClass and that the index for 'count' exists.
      * @see yii\cloudant\ActiveRecord::indexes()
      */
-    public function count($q = '*', $db = null)
+    public function count($q = '*', $db = null, $countIndexName = 'count')
     {
 
         $modelClass = $this->modelClass;
-        $countIdx = $modelClass::indexes()->count;
+        $countIdx = $modelClass::indexes()->$countIndexName;
 
         $result = $this->createCommand($db)->getView($countIdx->design, $countIdx->view);
         if (isset($result['rows']) && count($result['rows'])) {

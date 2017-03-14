@@ -477,6 +477,7 @@ class ActiveRecord extends BaseActiveRecord
             return false;
         }
         $values = $this->getDirtyAttributes($attributes);
+        unset($values['_rev']);
 
         $response = static::getDb()->createCommand()->insert(
             static::database(),
